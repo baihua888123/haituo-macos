@@ -1,0 +1,43 @@
+name: Build macOS DMG
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore baseline source
+        run: |
+          python3 - <<'PYCODE'
+          import hashlib,json,pathlib,zipfile
+          m=json.loads(pathlib.Path('source-manifest.json').read_text())
+          data=b''.join(pathlib.Path(p).read_bytes() for p in m['parts'])
+          assert hashlib.sha256(data).hexdigest()==m['sha256'], 'Source checksum mismatch'
+          pathlib.Path('source.zip').write_bytes(data)
+          with zipfile.ZipFile('source.zip') as z:
+              for n in z.namelist():
+                  assert pathlib.Path(n).resolve().is_relative_to(pathlib.Path.cwd()), 'Unsafe source path'
+              z.extractall('.')
+          PYCODE
+      - name: Build and verify DMG
+        run: bash macos/build-mac.command
+      - uses: actions/upload-artifact@v4
+        with:
+          name: haituo-macos-${{ runner.arch }}
+          path: macos/out/*.dmg
+          if-no-files-found: error
