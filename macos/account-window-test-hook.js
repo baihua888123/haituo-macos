@@ -41,7 +41,7 @@ async function haituoTestAccountWindows() {
         states.push({ stage: `switched-away`, accounts: hidden });
         for (const id of ids) caishengTerminateSignalChild(Yg.get(id));
         (0, m.writeFileSync)(output, JSON.stringify({ ok: true, states }, null, 2));
-        p.app.exit(0);
+        p.app.quit();
     } catch (error) {
         for (const id of ids) caishengTerminateSignalChild(Yg.get(id));
         (0, m.writeFileSync)(output, JSON.stringify({ ok: false, error: String(error?.stack || error), states }, null, 2));
