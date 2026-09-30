@@ -34,6 +34,24 @@ async function haituoTestAccountWindows() {
             check(current.filter(value => value.visible).length === 1, `Expected only one visible account`);
             check(current.find(value => value.id === id)?.visible, `Selected account was hidden`);
         }
+        caishengMenuOpen = !0; e_();
+        await delay(700);
+        const menuHidden = await Promise.all(ids.map(state));
+        check(menuHidden.every(value => !value.visible), `Account covered the add-account menu`);
+        states.push({ stage: `add-menu-open`, accounts: menuHidden });
+        caishengMenuOpen = !1; e_();
+        await delay(700);
+        check((await state(ids[0])).visible, `Account did not return after menu closed`);
+        const overlay = new p.BrowserWindow({ show: false, width: 400, height: 300, parent: Z });
+        try {
+            haituoRaiseOverlayWindow(overlay);
+            await delay(700);
+            const overlayHidden = await Promise.all(ids.map(state));
+            check(overlayHidden.every(value => !value.visible), `Account covered the settings overlay`);
+            states.push({ stage: `overlay-open`, accounts: overlayHidden });
+        } finally { overlay.destroy(); }
+        await delay(700);
+        check((await state(ids[0])).visible, `Account did not return after overlay closed`);
         sync({}, { id: null, x: 110, y: 70, width: 700, height: 500 });
         await delay(700);
         const hidden = await Promise.all(ids.map(state));
