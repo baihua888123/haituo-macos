@@ -40,11 +40,16 @@ jobs:
         run: bash macos/build-mac.command
       - name: Basic startup check
         run: python3 macos/smoke-start.py
+      - name: Test account window lifecycle
+        run: python3 macos/test-account-windows.py
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: haituo-macos-${{ runner.arch }}
           path: |
             macos/out/*.dmg
             macos/out/startup.log
             macos/out/startup.png
+            macos/out/account-windows.json
+            macos/out/account-windows.log
           if-no-files-found: error
