@@ -38,8 +38,13 @@ jobs:
           PYCODE
       - name: Build and verify DMG
         run: bash macos/build-mac.command
+      - name: Basic startup check
+        run: python3 macos/smoke-start.py
       - uses: actions/upload-artifact@v4
         with:
           name: haituo-macos-${{ runner.arch }}
-          path: macos/out/*.dmg
+          path: |
+            macos/out/*.dmg
+            macos/out/startup.log
+            macos/out/startup.png
           if-no-files-found: error
