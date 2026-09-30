@@ -32,7 +32,9 @@ jobs:
           with zipfile.ZipFile('source.zip') as z:
               for n in z.namelist():
                   assert pathlib.Path(n).resolve().is_relative_to(pathlib.Path.cwd()), 'Unsafe source path'
-              z.extractall('.')
+              for n in z.namelist():
+                  if not (n.startswith('macos/') and pathlib.Path(n).is_file()):
+                      z.extract(n, '.')
           PYCODE
       - name: Build and verify DMG
         run: bash macos/build-mac.command
