@@ -56,9 +56,9 @@ async function haituoTestAccountWindows() {
         }
 
         states.push({stage:`forty-account-resources`,...resources()});
-        const bar=await Z.webContents.executeJavaScript(`(()=>{const bar=document.querySelector('.CaishengPlatformShell__tabs');return {height:bar.getBoundingClientRect().height,width:bar.clientWidth,scrollWidth:bar.scrollWidth}})()`);
-        check(bar.height<=44,`Forty tabs displaced the chat area`);
-        check(bar.scrollWidth>bar.width,`Account tabs did not scroll`);
+        const bar=await Z.webContents.executeJavaScript(`(()=>{const bar=document.querySelector('.CaishengPlatformShell__tabs');return {height:bar.getBoundingClientRect().height,width:bar.clientWidth,scrollWidth:bar.scrollWidth,clientHeight:bar.clientHeight,scrollHeight:bar.scrollHeight}})()`);
+        check(bar.height>44 && bar.height<=161,`Account rows did not grow within the chat layout`);
+        check(bar.scrollWidth<=bar.width+1 && bar.scrollHeight>bar.clientHeight,`Account tabs did not scroll vertically`);
         states.push({stage:`account-tab-layout`,...bar});
         for (const id of [ids[0], ids[9], ids[19], ids[29], ids[39], ids[0]]) {
             await Z.webContents.executeJavaScript(`(()=>{const tab=document.querySelector('button[data-caisheng-tab-workspace="${id}"]');tab.scrollIntoView({block:'nearest',inline:'nearest'});tab.click()})()`);
@@ -69,10 +69,9 @@ async function haituoTestAccountWindows() {
             check(current.find(value => value.id === id)?.visible, `Selected account was hidden`);
         }
         const oldPid = Yg.get(ids[0]).pid;
-        const refresh = p.ipcMain._invokeHandlers.get(`caisheng:refresh-signal-profile`);
-        check((await refresh({},ids[0])).ok, `Refresh request failed`);
+        await Z.webContents.executeJavaScript(`document.querySelector('.CaishengPlatformShell__refresh').click()`);
         const refreshDeadline=Date.now()+60000;
-        while (!Xg.has(ids[0]) && Date.now()<refreshDeadline) await delay(200);
+        while ((!Xg.has(ids[0]) || Yg.get(ids[0])?.pid===oldPid) && Date.now()<refreshDeadline) await delay(200);
         check(Xg.has(ids[0]), `Refreshed account did not become ready`);
         check(Yg.get(ids[0]).pid !== oldPid, `Refresh did not restart the account backend`);
         await delay(1500);
@@ -119,7 +118,9 @@ async function haituoTestAccountWindows() {
         states.push({ stage: `switched-away`, accounts: hidden });
         for (const id of ids) caishengTerminateSignalChild(Yg.get(id));
         (0, m.writeFileSync)(output, JSON.stringify({ ok: true, states }, null, 2));
-        await refresh({},`signal-main`);
+        await Z.webContents.executeJavaScript(`document.querySelector('button[data-caisheng-tab-workspace="signal-main"]').click()`);
+        await delay(500);
+        await Z.webContents.executeJavaScript(`document.querySelector('.CaishengPlatformShell__refresh').click()`);
     } catch (error) {
         for (const id of ids) caishengTerminateSignalChild(Yg.get(id));
         (0, m.writeFileSync)(output, JSON.stringify({ ok: false, error: String(error?.stack || error), states }, null, 2));
