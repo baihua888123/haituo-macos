@@ -7,7 +7,7 @@ async function haituoSignalLiveTest() {
   if(running||linked||!Z||Z.isDestroyed())return;
   running=true;
   try{
-   const state=await Z.webContents.executeJavaScript(`(()=>{const area=document.querySelector('.CaishengPlatformShell__signal');return {qr:!!area?.querySelector('[class*=InstallScreenQrCodeNotScannedStep]'),inbox:!!area?.querySelector('.inbox'),loading:!!area?.querySelector('.app-loading-screen')}})()`);
+   const state=await Z.webContents.executeJavaScript(`(()=>{const area=document.querySelector('.CaishengPlatformShell__signal');return {qr:!!area?.querySelector('[class*=__qr-code--loaded] svg[role=img]'),inbox:!!area?.querySelector('.inbox'),loading:!!area?.querySelector('.app-loading-screen'),failure:area?.querySelector('[class*=__qr-code--load-failed]')?.textContent?.trim()||null}})()`);
    (0,m.writeFileSync)((0,s.join)(dir,'status.json'),JSON.stringify({at:new Date().toISOString(),...state}));
    if(state.qr){const image=await Z.webContents.capturePage();(0,m.writeFileSync)((0,s.join)(dir,'signal-qr.png'),image.toPNG());}
    if(state.inbox){linked=true;console.log('Signal test device linked; no messages inspected');}

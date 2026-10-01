@@ -50,19 +50,265 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: signal-live-login
-          path: macos/live/signal-qr.png
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
           retention-days: 1
-      - name: Wait for user device approval
+      - name: Refresh live QR snapshot 01
+        if: env.SIGNAL_LINKED != '1'
         run: |
           python3 - <<'PYCODE'
-          import pathlib,json,time
+          import pathlib,json,time,os
+          time.sleep(30)
           p=pathlib.Path('macos/live/status.json')
-          for i in range(180):
-              if p.exists() and json.loads(p.read_text()).get('inbox'):
-                  print('Signal test device linked; no messages inspected')
-                  break
-              time.sleep(5)
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
           PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-01
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 02
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-02
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 03
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-03
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 04
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-04
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 05
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-05
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 06
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-06
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 07
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-07
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 08
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-08
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 09
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-09
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 10
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-10
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 11
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-11
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 12
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-12
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 13
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-13
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 14
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-14
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
+      - name: Refresh live QR snapshot 15
+        if: env.SIGNAL_LINKED != '1'
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time,os
+          time.sleep(30)
+          p=pathlib.Path('macos/live/status.json')
+          if p.exists() and json.loads(p.read_text()).get('inbox'):
+              with open(os.environ['GITHUB_ENV'],'a') as f: f.write('SIGNAL_LINKED=1\n')
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login-15
+          path: |
+            macos/live/signal-qr.png
+            macos/live/status.json
+          retention-days: 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
