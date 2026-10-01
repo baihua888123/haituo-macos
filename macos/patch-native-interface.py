@@ -170,7 +170,7 @@ edit('''                            options: [ {
 edit('''                            chatTextColor: `#111827`,
                             outgoingBubbleColor: `#2c6bed`,''', '''                            chatTextColor: ``,
                             outgoingBubbleColor: ``,''')
-s=s.replace('当前版本 1.1.7', '当前版本 1.1.11')
+s=s.replace('当前版本 1.1.7', '当前版本 1.1.12')
 s=s.replace('${m.waterInkTheme ? ` is-haituo-ink` : ``}', '')
 s=s.replace('e.waterInkTheme = false;', 'delete e.waterInkTheme; delete e.waterInkBackgroundUrl;')
 s=s.replace('            waterInkTheme: e.waterInkTheme,\n','').replace('            waterInkTheme: !1,\n','')
