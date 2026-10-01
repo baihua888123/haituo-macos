@@ -54,6 +54,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 01
         if: env.SIGNAL_LINKED != '1'
@@ -72,6 +73,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 02
         if: env.SIGNAL_LINKED != '1'
@@ -90,6 +92,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 03
         if: env.SIGNAL_LINKED != '1'
@@ -108,6 +111,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 04
         if: env.SIGNAL_LINKED != '1'
@@ -126,6 +130,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 05
         if: env.SIGNAL_LINKED != '1'
@@ -144,6 +149,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 06
         if: env.SIGNAL_LINKED != '1'
@@ -162,6 +168,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 07
         if: env.SIGNAL_LINKED != '1'
@@ -180,6 +187,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 08
         if: env.SIGNAL_LINKED != '1'
@@ -198,6 +206,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 09
         if: env.SIGNAL_LINKED != '1'
@@ -216,6 +225,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 10
         if: env.SIGNAL_LINKED != '1'
@@ -234,6 +244,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 11
         if: env.SIGNAL_LINKED != '1'
@@ -252,6 +263,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 12
         if: env.SIGNAL_LINKED != '1'
@@ -270,6 +282,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 13
         if: env.SIGNAL_LINKED != '1'
@@ -288,6 +301,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 14
         if: env.SIGNAL_LINKED != '1'
@@ -306,6 +320,7 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - name: Refresh live QR snapshot 15
         if: env.SIGNAL_LINKED != '1'
@@ -324,10 +339,13 @@ jobs:
             macos/live/signal-main-qr.png
             macos/live/signal-child-qr.png
             macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: signal-live-status
-          path: macos/live/status.json
+          path: |
+            macos/live/status.json
+            macos/live/diagnostics.json
           retention-days: 1
