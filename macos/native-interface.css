@@ -1,5 +1,6 @@
 :root{--haituo-bg:#191919;--haituo-fg:#eeeeee;--haituo-field:#292929;--haituo-edge:#555;--haituo-muted:#c0c0c0;--haituo-account-label-color:#eeeeee;--haituo-chat-text-color:inherit}
 :root[data-haituo-native-theme=light]{--haituo-bg:#fff;--haituo-fg:#202020;--haituo-field:#f3f3f3;--haituo-edge:#c6c6c6;--haituo-muted:#606060;--haituo-account-label-color:#202020}
+.CaishengPlatformShell{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}.HaituoBrand small,.HaituoMarketTicker small{font-size:12px!important}
 .CaishengPlatformShell,.CaishengPlatformShell__nav,.CaishengPlatformShell__content,.HaituoHomePage,.CaishengPlatformShell__settings,.CaishengPlatformShell__picker,.CaishengPlatformShell__context,.CaishengPlatformShell__loadError{background:var(--haituo-bg)!important;background-image:none!important;color:var(--haituo-fg)!important;border-color:var(--haituo-edge)!important;box-shadow:none!important}
 .CaishengPlatformShell__content:after,.CaishengPlatformShell__settings:after{display:none!important}
 .HaituoBrand strong,.HaituoBrand small,.HaituoBrand em,.HaituoMarketTicker b,.HaituoMarketTicker small,.CaishengPlatformShell__tabLabel,.CaishengPlatformShell__settings :is(strong,label,small,p){color:var(--haituo-fg)!important;-webkit-text-fill-color:var(--haituo-fg)!important;text-shadow:none!important}

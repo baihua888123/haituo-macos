@@ -49,6 +49,10 @@ edit('        return e;\n    } catch {\n        return { translationMode:', ''' 
     } catch {
         return { nativeTheme: `dark`, darkTheme: true, _nativeAppearanceV1111: true, translationMode:''')
 s=s.replace('waterInkTheme: !0, incomingBubbleLinked:', 'waterInkTheme: !1, incomingBubbleLinked:')
+s=s.replace('return { nativeTheme: `dark`, darkTheme: true, _nativeAppearanceV1111: true, translationMode:', 'return { chatTextColor: ``, outgoingBubbleColor: ``, incomingBubbleColor: ``, nativeTheme: `dark`, darkTheme: true, _nativeAppearanceV1111: true, translationMode:')
+s=s.replace('accountWindowConfig.chatTextColor ?? `#111827`', 'accountWindowConfig.chatTextColor ?? ``')
+s=s.replace('accountWindowConfig.outgoingBubbleColor ?? `#2c6bed`', 'accountWindowConfig.outgoingBubbleColor ?? ``')
+s=s.replace('accountWindowConfig.incomingBubbleColor ?? `#2c6bed`', 'accountWindowConfig.incomingBubbleColor ?? ``')
 s=s.replace('e.incomingBubbleColor = e.outgoingBubbleColor || `#2c6bed`, changed = !0;', 'e.incomingBubbleColor = e.outgoingBubbleColor || ``, changed = !0;')
 edit('        darkTheme: !!t?.darkTheme,\n        waterInkTheme: !!t?.waterInkTheme,', '''        nativeTheme: t?.nativeTheme === `light` || t?.darkTheme === false ? `light` : `dark`,
         darkTheme: !(t?.nativeTheme === `light` || t?.darkTheme === false),
@@ -83,6 +87,8 @@ edit("document.getElementById('resetColors').onclick=()=>{form.outgoingBubbleCol
 # The settings page is separate from Signal and uses the same neutral palette.
 edit('</style></head><body>\n<div class="title">海拓设置', '''</style><style id="haituo-native-settings">${haituoNativeSettingsCss($p().nativeTheme)}</style></head><body>
 <div class="title">海拓设置''')
+edit('</style></head><body><div class="title">编辑账号备注', '</style><style>${haituoNativeSettingsCss($p().nativeTheme)}</style></head><body><div class="title">编辑账号备注')
+edit('聊天界面保持显示，此窗口始终位于最上层。', '备注仅用于区分账号。')
 edit('    if (e.type === `haituo-test-window-state`', '''    if (e.type === `haituo-test-page-state` && process.env.HAITUO_WINDOW_TEST === `1`) {
         Z.webContents.executeJavaScript(`({text:document.body.innerText,theme:document.body.className,ready:document.readyState,loading:!!document.querySelector('.app-loading-screen'),installed:!!document.querySelector('[class*="InstallScreen"],.inbox')})`).then(page => process.send?.({type:`haituo-test-page-result`,requestId:e.requestId,page}));
         return;
@@ -130,6 +136,8 @@ s+='\n'+Path('macos/native-interface-renderer.js').read_text()
 p.write_text(s)
 
 p=root/'js/caisheng-webview-preload.js';s=p.read_text()
+s=s.replace('    chatTextColor: "#111827",', '    chatTextColor: "",').replace('    outgoingBubbleColor: "#2c6bed",','    outgoingBubbleColor: "",')
+a=s.index('const WHATSAPP_DARK_STYLE =');b=s.index('let whatsappDarkObserver',a);s=s[:a]+s[b:]
 def function_replace(name, body):
     global s
     a=s.index('function '+name+'(')
