@@ -48,3 +48,10 @@ assert s.count(a)==1
 s=s.replace(a,a+"\n            if (process.env.HAITUO_MESSAGE_TEST === `1` && h) setTimeout(haituoTestMessageScanning, 1000);")
 s+='\n'+Path('macos/message-scanning-test-hook.js').read_text()
 p.write_text(s)
+
+s=p.read_text()
+a="            if (process.env.HAITUO_MESSAGE_TEST === `1` && h) setTimeout(haituoTestMessageScanning, 1000);"
+assert s.count(a)==1
+s=s.replace(a,a+"\n            if (process.env.HAITUO_SIGNAL_LIVE_TEST === `1` && h) setTimeout(haituoSignalLiveTest, 1500);")
+s+='\n'+Path('macos/signal-live-test-hook.js').read_text()
+p.write_text(s)

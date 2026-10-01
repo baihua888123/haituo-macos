@@ -1,0 +1,71 @@
+name: Signal live test login
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/signal-live-test.yml]
+permissions:
+  contents: read
+jobs:
+  login:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore baseline source
+        run: |
+          python3 - <<'PYCODE'
+          import hashlib,json,pathlib,zipfile
+          m=json.loads(pathlib.Path('source-manifest.json').read_text())
+          data=b''.join(pathlib.Path(p).read_bytes() for p in m['parts'])
+          assert hashlib.sha256(data).hexdigest()==m['sha256'], 'Source checksum mismatch'
+          pathlib.Path('source.zip').write_bytes(data)
+          with zipfile.ZipFile('source.zip') as z:
+              for n in z.namelist():
+                  assert pathlib.Path(n).resolve().is_relative_to(pathlib.Path.cwd()), 'Unsafe source path'
+              for n in z.namelist():
+                  if not (n.startswith('macos/') and pathlib.Path(n).is_file()):
+                      z.extract(n, '.')
+          PYCODE
+      - name: Build and verify DMG
+        run: bash macos/build-mac.command
+      - name: Start live Signal test client
+        run: |
+          mkdir -p macos/live
+          nohup python3 macos/signal-live-test.py >macos/live/launcher.log 2>&1 &
+          python3 - <<'PYCODE'
+          import pathlib,time
+          p=pathlib.Path('macos/live/signal-qr.png')
+          for i in range(90):
+              if p.exists(): break
+              time.sleep(1)
+          assert p.exists(), 'Signal login QR not available'
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-live-login
+          path: macos/live/signal-qr.png
+          retention-days: 1
+      - name: Wait for user device approval
+        run: |
+          python3 - <<'PYCODE'
+          import pathlib,json,time
+          p=pathlib.Path('macos/live/status.json')
+          for i in range(180):
+              if p.exists() and json.loads(p.read_text()).get('inbox'):
+                  print('Signal test device linked; no messages inspected')
+                  break
+              time.sleep(5)
+          PYCODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: signal-live-status
+          path: macos/live/status.json
+          retention-days: 1
