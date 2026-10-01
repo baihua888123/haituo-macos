@@ -11,6 +11,8 @@ def edit(old, new):
 
 # Do not steal focus back to the previous account while the user clicks a tab.
 edit('if ($u === `signal-main`) Z.on(`focus`, () => setImmediate(haituoMacFocusSelectedAccount));', 'if ($u === `signal-main`) Z.on(`restore`, () => setImmediate(haituoMacFocusSelectedAccount));')
+edit('            caishengStopNativeFollower(), Z.setAlwaysOnTop(!1), Z.setIgnoreMouseEvents(!0), Z.isVisible() && Z.hide();', '            Z.webContents.setBackgroundThrottling(true);\n            caishengStopNativeFollower(), Z.setAlwaysOnTop(!1), Z.setIgnoreMouseEvents(!0), Z.isVisible() && Z.hide();')
+edit('        Z.isFullScreen() && Z.setFullScreen(!1), Z.isMaximized()', '        Z.webContents.setBackgroundThrottling(false);\n        Z.isFullScreen() && Z.setFullScreen(!1), Z.isMaximized()')
 edit('let Zg, Qg, caishengMenuOpen', 'let haituoLaunchSignalProfile;\nlet Zg, Qg, caishengMenuOpen')
 edit('        ...(process.platform === `darwin` ? { type: `panel` } : {})', '')
 edit('p.ipcMain.handle(`caisheng:launch-signal-profile`, async (e, t) => {', 'p.ipcMain.handle(`caisheng:launch-signal-profile`, (haituoLaunchSignalProfile = async (e, t) => {')
@@ -150,6 +152,21 @@ edit('''                            type: `checkbox`, checked: !!m.waterInkTheme
                             onChange: e => Q({ nativeTheme: e.target.checked ? `dark` : `light`, darkTheme: e.target.checked, waterInkTheme: false })
                         }), (0, O9.jsx)(`span`, { children: `原生深色（关闭切换为浅色）` })''')
 edit('waterInkTheme: !1, darkTheme: e === `dark`', 'waterInkTheme: !1, nativeTheme: e === `light` ? `light` : `dark`, darkTheme: e !== `light`')
+edit('getThemeSetting: async () => await M9(`themeSetting`) ?? `system`,', 'getThemeSetting: async () => (await window.SignalContext.caishengGetTranslationConfig()).nativeTheme === `light` ? `light` : `dark`,')
+edit('''                            options: [ {
+                                label: H(`icu:themeSystem`),
+                                value: `system`
+                            }, {
+                                label: H(`icu:themeLight`),
+                                value: `light`
+                            }, {
+                                label: H(`icu:themeDark`),
+                                value: `dark`
+                            } ]''', '''                            options: [ {
+                                label: H(`icu:themeDark`), value: `dark`
+                            }, {
+                                label: H(`icu:themeLight`), value: `light`
+                            } ]''')
 edit('''                            chatTextColor: `#111827`,
                             outgoingBubbleColor: `#2c6bed`,''', '''                            chatTextColor: ``,
                             outgoingBubbleColor: ``,''')
