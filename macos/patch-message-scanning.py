@@ -4,7 +4,7 @@ def edit(a,b):
  global s
  assert s.count(a)==1,(a[:70],s.count(a))
  s=s.replace(a,b,1)
-edit('window.addEventListener("DOMContentLoaded", () => {','function haituoInstallMessageScanner() {\n    if (window.__haituoMessageScannerInstalled) return;\n    window.__haituoMessageScannerInstalled = true;')
+edit('}, 1500), window.addEventListener("DOMContentLoaded", () => {','}, 1500);\nfunction haituoInstallMessageScanner() {\n    if (window.__haituoMessageScannerInstalled) return;\n    window.__haituoMessageScannerInstalled = true;')
 edit('const messageCandidates = document.querySelectorAll(\'[data-testid="msg-container"]\').length ? document.querySelectorAll(\'[data-testid="msg-container"]\') : document.querySelectorAll(\'#main .message-in,#main .message-out\');','''const messageCandidates = [...document.querySelectorAll('[data-testid="msg-container"],#main .message-in,#main .message-out,#main [data-id^="false_"],#main [data-id^="true_"]')]
             .map(node => node.closest('.message-in,.message-out,[data-id^="false_"],[data-id^="true_"]') || node);''')
 edit("e.querySelectorAll('.selectable-text,[data-testid=\"msg-text\"]')", "e.querySelectorAll('.selectable-text,[data-testid=\"msg-text\"],[data-testid=\"conversation-text\"],[data-pre-plain-text] span[dir=\"auto\"]')")
