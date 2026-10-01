@@ -12,7 +12,7 @@ async function haituoTestMessageScanning() {
             if(value.text==='Retry without page changes'&&count===1)throw Error('Fixture temporary service failure');
             return {text:'译：'+value.text};
         });
-        win=new p.BrowserWindow({show:true,width:1000,height:900,webPreferences:{preload:(0,s.join)($,'js','caisheng-webview-preload.js'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
+        win=new p.BrowserWindow({show:true,width:1000,height:900,webPreferences:{partition:'haituo-message-fixture',preload:(0,s.join)($,'js','caisheng-webview-preload.js'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
         const html=`<html><body><style>#main{margin-top:100px}#main>div{min-height:70px}.selectable-text{white-space:pre-wrap}</style><div id="noise"></div><div id="main">
         <div data-testid="msg-container" id="legacy"><span class="selectable-text">Correct, up to 10</span></div>
         <div class="message-in" id="mixed"><span class="selectable-text">Hi 😊</span></div>
@@ -21,7 +21,8 @@ async function haituoTestMessageScanning() {
         <div class="message-in" id="retry"><span class="selectable-text">Retry without page changes</span></div>
         <div class="message-in" id="url"><span class="selectable-text">https://example.com</span></div>
         </div></body></html>`;
-        await win.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(html));
+        await win.webContents.session.protocol.handle('https',request => new Response(html,{headers:{'content-type':'text/html; charset=utf-8'}}));
+        await win.loadURL('https://web.whatsapp.com/haituo-message-fixture');
         await win.webContents.executeJavaScript(`window.fixtureNoise=setInterval(()=>document.getElementById('noise').textContent=String(Date.now()),100);setTimeout(()=>{const row=document.createElement('div');row.className='message-in';row.id='late';row.innerHTML='<span class="selectable-text">New message during continuous updates</span>';document.getElementById('main').append(row)},2500)`);
         await delay(13000);
         const result=await win.webContents.executeJavaScript(`(()=>{clearInterval(window.fixtureNoise);return ['legacy','mixed','modern','paragraph','retry','late'].map(id=>({id,count:document.getElementById(id).querySelectorAll('.haituo-wa-message-translation').length,text:document.getElementById(id).querySelector('.haituo-wa-message-translation span')?.textContent,error:!!document.getElementById(id).querySelector('.haituo-wa-translation-error')}))})()`);
