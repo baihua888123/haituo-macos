@@ -25,11 +25,12 @@ edit('    return caishengSendChild(child, { type: `caisheng-soft-refresh` }), se
         const exited = new Promise(resolve => child.once(`exit`, resolve));
         caishengTerminateSignalChild(child);
         await Promise.race([exited, new Promise(resolve => setTimeout(resolve, 5000))]);
-        if (child.exitCode === null) return { ok: false };
+        if (child.exitCode === null && child.signalCode === null) return { ok: false };
         caishengLastWindowPayload.delete(t);
         return haituoLaunchSignalProfile(e, t);
     }
     return caishengSendChild(child, { type: `caisheng-soft-refresh` }), setImmediate(caishengKeepMainShellVisible), {''')
+edit('        stdio: [ `ignore`, `ignore`, `ignore`, `ipc` ],', '        stdio: process.env.HAITUO_WINDOW_TEST === `1` ? [ `ignore`, `inherit`, `inherit`, `ipc` ] : [ `ignore`, `ignore`, `ignore`, `ipc` ],')
 edit('function caishengShowTopMenu(title, items) {', '''function caishengShowTopMenu(title, items) {
     if (process.env.HAITUO_WINDOW_TEST === `1` && process.env.HAITUO_TEST_ADD_ACCOUNT === `1`) return Promise.resolve(`signal`);''')
 
@@ -57,7 +58,8 @@ edit('    em(Zp), haituoBroadcastTranslationConfig(Zp);', '''    Zp.chatTextColo
     Zp.incomingBubbleColor = Zp.incomingBubbleLinked ? Zp.outgoingBubbleColor : /^#[0-9a-f]{6}$/iu.test(t?.incomingBubbleColor || ``) ? t.incomingBubbleColor : ``;
     em(Zp), haituoBroadcastTranslationConfig(Zp);
     Pm(`theme-setting`, Zp.nativeTheme);
-    p.nativeTheme.themeSource = Zp.nativeTheme;''')
+    p.nativeTheme.themeSource = Zp.nativeTheme;
+    if (caishengSettingsWindow && !caishengSettingsWindow.isDestroyed()) caishengSettingsWindow.webContents.executeJavaScript(`document.getElementById('haituo-native-settings').textContent=${JSON.stringify(haituoNativeSettingsCss(Zp.nativeTheme))}`).catch(() => {});''')
 edit('        darkTheme: !!accountWindowConfig.darkTheme,', '        nativeTheme: accountWindowConfig.nativeTheme,\n        darkTheme: accountWindowConfig.nativeTheme !== `light`,')
 start=s.index('        const loginThemeMode =', s.index('function n_()'))
 end=s.index('        if (!Qg.visible || !Qg.bounds)', start)
@@ -78,7 +80,7 @@ edit("const font=()=>document.getElementById('fontValue')", "const initialColors
 edit('data.chatTextGradientIndex=0;data.outgoingBubbleGradientIndex=0;', "for(const key of ['chatTextColor','outgoingBubbleColor','incomingBubbleColor'])if(form.elements[key].value===initialColors[key])data[key]=cfg[key]||'';data.incomingBubbleColor=data.incomingBubbleLinked?data.outgoingBubbleColor:data.incomingBubbleColor;data.chatTextGradientIndex=0;data.outgoingBubbleGradientIndex=0;")
 edit("document.getElementById('resetColors').onclick=()=>{form.outgoingBubbleColor.value='#2c6bed';form.chatTextColor.value='#111827';form.incomingBubbleLinked.checked=true;syncBubbleColors();send('preview')};", "document.getElementById('resetColors').onclick=()=>{for(const key of ['chatTextColor','outgoingBubbleColor','incomingBubbleColor']){cfg[key]='';form.elements[key].value=cfg.nativeTheme==='light'?'#202020':'#eeeeee';initialColors[key]=form.elements[key].value}form.incomingBubbleLinked.checked=true;send('preview')};")
 # The settings page is separate from Signal and uses the same neutral palette.
-edit('</style></head><body>\n<div class="title">海拓设置', '''</style><style>${haituoNativeSettingsCss($p().nativeTheme)}</style></head><body>
+edit('</style></head><body>\n<div class="title">海拓设置', '''</style><style id="haituo-native-settings">${haituoNativeSettingsCss($p().nativeTheme)}</style></head><body>
 <div class="title">海拓设置''')
 edit('    if (e.type === `haituo-test-window-state`', '''    if (e.type === `haituo-test-page-state` && process.env.HAITUO_WINDOW_TEST === `1`) {
         Z.webContents.executeJavaScript(`({text:document.body.innerText,theme:document.body.className,ready:document.readyState,loading:!!document.querySelector('.app-loading-screen'),installed:!!document.querySelector('[class*="InstallScreen"],.inbox')})`).then(page => process.send?.({type:`haituo-test-page-result`,requestId:e.requestId,page}));
