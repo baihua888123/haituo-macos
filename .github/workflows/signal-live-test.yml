@@ -41,17 +41,18 @@ jobs:
           nohup python3 macos/signal-live-test.py >macos/live/launcher.log 2>&1 &
           python3 - <<'PYCODE'
           import pathlib,time
-          p=pathlib.Path('macos/live/signal-qr.png')
+          p=pathlib.Path('macos/live/signal-main-qr.png');child=pathlib.Path('macos/live/signal-child-qr.png')
           for i in range(90):
-              if p.exists(): break
+              if p.exists() and child.exists(): break
               time.sleep(1)
-          assert p.exists(), 'Signal login QR not available'
+          assert p.exists() and child.exists(), 'Main/child Signal login QR not available'
           PYCODE
       - uses: actions/upload-artifact@v4
         with:
           name: signal-live-login
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 01
@@ -68,7 +69,8 @@ jobs:
         with:
           name: signal-live-login-01
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 02
@@ -85,7 +87,8 @@ jobs:
         with:
           name: signal-live-login-02
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 03
@@ -102,7 +105,8 @@ jobs:
         with:
           name: signal-live-login-03
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 04
@@ -119,7 +123,8 @@ jobs:
         with:
           name: signal-live-login-04
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 05
@@ -136,7 +141,8 @@ jobs:
         with:
           name: signal-live-login-05
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 06
@@ -153,7 +159,8 @@ jobs:
         with:
           name: signal-live-login-06
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 07
@@ -170,7 +177,8 @@ jobs:
         with:
           name: signal-live-login-07
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 08
@@ -187,7 +195,8 @@ jobs:
         with:
           name: signal-live-login-08
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 09
@@ -204,7 +213,8 @@ jobs:
         with:
           name: signal-live-login-09
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 10
@@ -221,7 +231,8 @@ jobs:
         with:
           name: signal-live-login-10
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 11
@@ -238,7 +249,8 @@ jobs:
         with:
           name: signal-live-login-11
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 12
@@ -255,7 +267,8 @@ jobs:
         with:
           name: signal-live-login-12
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 13
@@ -272,7 +285,8 @@ jobs:
         with:
           name: signal-live-login-13
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 14
@@ -289,7 +303,8 @@ jobs:
         with:
           name: signal-live-login-14
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - name: Refresh live QR snapshot 15
@@ -306,7 +321,8 @@ jobs:
         with:
           name: signal-live-login-15
           path: |
-            macos/live/signal-qr.png
+            macos/live/signal-main-qr.png
+            macos/live/signal-child-qr.png
             macos/live/status.json
           retention-days: 1
       - uses: actions/upload-artifact@v4
