@@ -50,6 +50,6 @@ jobs:
             macos/out/*.dmg
             macos/out/startup.log
             macos/out/startup.png
-            macos/out/account-windows.json
+            macos/out/account-windows*.json
             macos/out/account-windows.log
           if-no-files-found: error

@@ -1,6 +1,10 @@
 async function haituoTestAccountWindows() {
     if (process.platform !== `darwin` || $u !== `signal-main` || process.env.HAITUO_WINDOW_TEST !== `1`) return;
     const output = process.env.HAITUO_WINDOW_TEST_RESULT;
+    if (process.argv.includes(`--haituo-verify-main-refresh`)) {
+        await haituoTestMainRefreshResult(output);
+        return;
+    }
     const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     const launch = p.ipcMain._invokeHandlers.get(`caisheng:launch-signal-profile`);
     const sync = p.ipcMain._invokeHandlers.get(`caisheng:sync-signal-profile`);
@@ -26,7 +30,7 @@ async function haituoTestAccountWindows() {
         check(typeof launch === `function` && typeof sync === `function`, `Account handlers unavailable`);
         const shellDeadline = Date.now() + 60000;
         while (!await Z.webContents.executeJavaScript(`!!document.querySelector('.CaishengPlatformShell__add')`) && Date.now()<shellDeadline) await delay(200);
-        process.env.HAITUO_TEST_ADD_ACCOUNT = `1`;
+
         for (let account=0;account<3;account++) {
             const beforeIds = new Set(Yg.keys());
             await Z.webContents.executeJavaScript(`document.querySelector('.CaishengPlatformShell__add').click()`);
@@ -44,7 +48,7 @@ async function haituoTestAccountWindows() {
             const before = await state(id); states.push({ stage: `ui-account-added`, ...before });
             check(before.visible, `Added account did not become visible: ${id}`);
         }
-        delete process.env.HAITUO_TEST_ADD_ACCOUNT;
+
         for (const id of [ids[0], ids[1], ids[2], ids[0]]) {
             await Z.webContents.executeJavaScript(`document.querySelector('button[data-caisheng-tab-workspace="${id}"]').click()`);
             await delay(1500);
@@ -66,8 +70,10 @@ async function haituoTestAccountWindows() {
         while((refreshedPage.loading||!refreshedPage.installed)&&Date.now()<refreshDeadline){await delay(500);refreshedPage=await page(ids[0]);}
         check(!refreshedPage.loading&&refreshedPage.installed,`Refreshed account is still on the loading splash: ${JSON.stringify(refreshedPage)}`);
         states.push({stage:`account-refreshed`,...(await state(ids[0])),page:refreshedPage});
+        await Z.webContents.executeJavaScript(`document.querySelector('.CaishengPlatformShell__settingsButton').click()`);
+        await delay(500);
         for (const nativeTheme of [`dark`,`light`,`dark`]) {
-            await Z.webContents.executeJavaScript(`window.SignalContext.caishengSetTranslationConfig({nativeTheme:${JSON.stringify(nativeTheme)},darkTheme:${nativeTheme!==`light`}})`);
+            await Z.webContents.executeJavaScript(`(()=>{const label=[...document.querySelectorAll('.CaishengPlatformShell__settings label')].find(label=>label.textContent.includes('原生深色'));const input=label?.querySelector('input');if(!input)throw Error('Native appearance checkbox missing');if(input.checked!==${nativeTheme!==`light`})input.click()})()`);
             await delay(1000);
             const appearance=await Z.webContents.executeJavaScript(`({mode:document.documentElement.dataset.haituoNativeTheme,bg:getComputedStyle(document.querySelector('.CaishengPlatformShell__nav')).backgroundColor,fg:getComputedStyle(document.querySelector('.HaituoMarketTicker b')).color,backgroundImage:getComputedStyle(document.querySelector('.CaishengPlatformShell__content')).backgroundImage})`);
             check(appearance.mode===nativeTheme,`Native mode did not synchronize`);
@@ -75,6 +81,8 @@ async function haituoTestAccountWindows() {
             check(appearance.bg!==appearance.fg,`Ticker text is invisible`);
             states.push({stage:`native-appearance`,...appearance});
         }
+        await Z.webContents.executeJavaScript(`document.querySelector('.HaituoSettingsCollapse').click()`);
+        await delay(500);
         caishengMenuOpen = !0; e_();
         await delay(700);
         const menuHidden = await Promise.all(ids.map(state));
@@ -100,10 +108,29 @@ async function haituoTestAccountWindows() {
         states.push({ stage: `switched-away`, accounts: hidden });
         for (const id of ids) caishengTerminateSignalChild(Yg.get(id));
         (0, m.writeFileSync)(output, JSON.stringify({ ok: true, states }, null, 2));
-        p.app.quit();
+        await refresh({},`signal-main`);
     } catch (error) {
         for (const id of ids) caishengTerminateSignalChild(Yg.get(id));
         (0, m.writeFileSync)(output, JSON.stringify({ ok: false, error: String(error?.stack || error), states }, null, 2));
+        p.app.exit(1);
+    }
+}
+
+async function haituoTestMainRefreshResult(output) {
+    const delay = ms => new Promise(resolve => setTimeout(resolve,ms));
+    try {
+        const deadline=Date.now()+60000;
+        let page;
+        await Z.webContents.executeJavaScript(`document.querySelector('button[data-caisheng-tab-workspace="signal-main"]').click()`);
+        do {
+            await delay(500);
+            page=await Z.webContents.executeJavaScript(`({loading:!!document.querySelector('.CaishengPlatformShell__signal .app-loading-screen'),installed:!!document.querySelector('.CaishengPlatformShell__signal [class*="InstallScreen"],.CaishengPlatformShell__signal .inbox'),mode:document.documentElement.dataset.haituoNativeTheme,text:document.querySelector('.CaishengPlatformShell__signal')?.innerText})`);
+        } while((page.loading||!page.installed)&&Date.now()<deadline);
+        if(page.loading||!page.installed)throw Error(`Main Signal is still loading after restarting: ${JSON.stringify(page)}`);
+        (0,m.writeFileSync)(output+`.main-refresh.json`,JSON.stringify({ok:true,page},null,2));
+        p.app.quit();
+    } catch(error) {
+        (0,m.writeFileSync)(output+`.main-refresh.json`,JSON.stringify({ok:false,error:String(error?.stack||error)},null,2));
         p.app.exit(1);
     }
 }

@@ -12,10 +12,11 @@ def edit(old, new):
 # Do not steal focus back to the previous account while the user clicks a tab.
 edit('if ($u === `signal-main`) Z.on(`focus`, () => setImmediate(haituoMacFocusSelectedAccount));', 'if ($u === `signal-main`) Z.on(`restore`, () => setImmediate(haituoMacFocusSelectedAccount));')
 edit('let Zg, Qg, caishengMenuOpen', 'let haituoLaunchSignalProfile;\nlet Zg, Qg, caishengMenuOpen')
+edit('        ...(process.platform === `darwin` ? { type: `panel` } : {})', '')
 edit('p.ipcMain.handle(`caisheng:launch-signal-profile`, async (e, t) => {', 'p.ipcMain.handle(`caisheng:launch-signal-profile`, (haituoLaunchSignalProfile = async (e, t) => {')
 edit('}), p.ipcMain.handle(`caisheng:refresh-signal-profile`, async (e, t) => {', '})), p.ipcMain.handle(`caisheng:refresh-signal-profile`, async (e, t) => {')
 edit('    if (t === `signal-main`) return {\n        ok: caishengSoftRefreshWindow()\n    };', '''    if (t === `signal-main` && process.platform === `darwin`) {
-        p.app.relaunch();
+        p.app.relaunch({args:[...process.argv.slice(1),...(process.env.HAITUO_WINDOW_TEST === `1` ? [`--haituo-verify-main-refresh`] : [])]});
         setTimeout(() => p.app.quit(), 100);
         return { ok: true };
     }
