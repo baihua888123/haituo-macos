@@ -4,7 +4,7 @@ async function haituoTestAccountWindows() {
     const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     const launch = p.ipcMain._invokeHandlers.get(`caisheng:launch-signal-profile`);
     const sync = p.ipcMain._invokeHandlers.get(`caisheng:sync-signal-profile`);
-    const states = [], ids = [ `signal-haituo-test-a`, `signal-haituo-test-b`, `signal-haituo-test-c` ];
+    const states = [], ids = [];
     const check = (condition, message) => { if (!condition) throw Error(message); };
     const state = id => new Promise((resolve, reject) => {
         const child = Yg.get(id), requestId = `${id}-${Date.now()}`;
@@ -16,23 +16,64 @@ async function haituoTestAccountWindows() {
         child.on(`message`, listen);
         caishengSendChild(child, { type: `haituo-test-window-state`, requestId });
     });
+    const page = id => new Promise((resolve,reject)=>{
+        const child=Yg.get(id),requestId=`page-${id}-${Date.now()}`;
+        const timer=setTimeout(()=>{child.removeListener(`message`,listen);reject(Error(`Page state timed out`));},10000);
+        function listen(value){if(value?.type!==`haituo-test-page-result`||value.requestId!==requestId)return;clearTimeout(timer);child.removeListener(`message`,listen);resolve(value.page);}
+        child.on(`message`,listen);caishengSendChild(child,{type:`haituo-test-page-state`,requestId});
+    });
     try {
         check(typeof launch === `function` && typeof sync === `function`, `Account handlers unavailable`);
-        for (const id of ids) {
-            await launch({}, id);
+        const shellDeadline = Date.now() + 60000;
+        while (!await Z.webContents.executeJavaScript(`!!document.querySelector('.CaishengPlatformShell__add')`) && Date.now()<shellDeadline) await delay(200);
+        process.env.HAITUO_TEST_ADD_ACCOUNT = `1`;
+        for (let account=0;account<3;account++) {
+            const beforeIds = new Set(Yg.keys());
+            await Z.webContents.executeJavaScript(`document.querySelector('.CaishengPlatformShell__add').click()`);
+            await delay(500);
+            if (ids.length) check((await Promise.all(ids.map(state))).every(value=>!value.visible),`Account covered the actual add-account picker`);
+            await Z.webContents.executeJavaScript(`[...document.querySelectorAll('.CaishengPlatformShell__picker button')].find(button=>button.textContent.includes('Signal')).click()`);
             const deadline = Date.now() + 60000;
+            while (![...Yg.keys()].some(id=>!beforeIds.has(id)) && Date.now()<deadline) await delay(200);
+            const id = [...Yg.keys()].find(id=>!beforeIds.has(id));
+            check(id, `Add-account button did not launch an account`);
+            ids.push(id);
             while (!Xg.has(id) && Date.now() < deadline) await delay(200);
             check(Xg.has(id), `Account did not become ready: ${id}`);
-            const before = await state(id); states.push({ stage: `background-created`, ...before });
-            check(!before.visible, `Unselected account opened a window: ${id}`);
+            await delay(1500);
+            const before = await state(id); states.push({ stage: `ui-account-added`, ...before });
+            check(before.visible, `Added account did not become visible: ${id}`);
         }
+        delete process.env.HAITUO_TEST_ADD_ACCOUNT;
         for (const id of [ids[0], ids[1], ids[2], ids[0]]) {
-            sync({}, { id, x: 110, y: 70, width: 700, height: 500, keepVisible: true });
-            await delay(700);
+            await Z.webContents.executeJavaScript(`document.querySelector('button[data-caisheng-tab-workspace="${id}"]').click()`);
+            await delay(1500);
             const current = await Promise.all(ids.map(state));
             states.push({ stage: `selected`, selectedId: id, accounts: current });
             check(current.filter(value => value.visible).length === 1, `Expected only one visible account`);
             check(current.find(value => value.id === id)?.visible, `Selected account was hidden`);
+        }
+        const oldPid = Yg.get(ids[0]).pid;
+        const refresh = p.ipcMain._invokeHandlers.get(`caisheng:refresh-signal-profile`);
+        check((await refresh({},ids[0])).ok, `Refresh request failed`);
+        const refreshDeadline=Date.now()+60000;
+        while (!Xg.has(ids[0]) && Date.now()<refreshDeadline) await delay(200);
+        check(Xg.has(ids[0]), `Refreshed account did not become ready`);
+        check(Yg.get(ids[0]).pid !== oldPid, `Refresh did not restart the account backend`);
+        await delay(1500);
+        check((await state(ids[0])).visible, `Refreshed account did not reappear`);
+        let refreshedPage=await page(ids[0]);
+        while((refreshedPage.loading||!refreshedPage.installed)&&Date.now()<refreshDeadline){await delay(500);refreshedPage=await page(ids[0]);}
+        check(!refreshedPage.loading&&refreshedPage.installed,`Refreshed account is still on the loading splash: ${JSON.stringify(refreshedPage)}`);
+        states.push({stage:`account-refreshed`,...(await state(ids[0])),page:refreshedPage});
+        for (const nativeTheme of [`dark`,`light`,`dark`]) {
+            await Z.webContents.executeJavaScript(`window.SignalContext.caishengSetTranslationConfig({nativeTheme:${JSON.stringify(nativeTheme)},darkTheme:${nativeTheme!==`light`}})`);
+            await delay(1000);
+            const appearance=await Z.webContents.executeJavaScript(`({mode:document.documentElement.dataset.haituoNativeTheme,bg:getComputedStyle(document.querySelector('.CaishengPlatformShell__nav')).backgroundColor,fg:getComputedStyle(document.querySelector('.HaituoMarketTicker b')).color,backgroundImage:getComputedStyle(document.querySelector('.CaishengPlatformShell__content')).backgroundImage})`);
+            check(appearance.mode===nativeTheme,`Native mode did not synchronize`);
+            check(appearance.backgroundImage===`none`,`Wallpaper remained after removing themes`);
+            check(appearance.bg!==appearance.fg,`Ticker text is invisible`);
+            states.push({stage:`native-appearance`,...appearance});
         }
         caishengMenuOpen = !0; e_();
         await delay(700);
