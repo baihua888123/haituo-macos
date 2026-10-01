@@ -9,6 +9,12 @@ async function haituoTestAccountWindows() {
     const launch = p.ipcMain._invokeHandlers.get(`caisheng:launch-signal-profile`);
     const sync = p.ipcMain._invokeHandlers.get(`caisheng:sync-signal-profile`);
     const states = [], ids = [];
+    const resources = () => {
+        const rows=(0,c.execFileSync)(`ps`,[`-axo`,`pid=,ppid=,rss=`],{encoding:`utf8`}).trim().split(`\n`).map(line=>line.trim().split(/\s+/).map(Number));
+        const family=new Set([process.pid]);let changed=true;
+        while(changed){changed=false;for(const [pid,parent] of rows)if(family.has(parent)&&!family.has(pid)){family.add(pid);changed=true;}}
+        return {accounts:Yg.size,processes:family.size,rssMiB:Math.round(rows.filter(([pid])=>family.has(pid)).reduce((sum,row)=>sum+row[2],0)/1024)};
+    };
     const check = (condition, message) => { if (!condition) throw Error(message); };
     const state = id => new Promise((resolve, reject) => {
         const child = Yg.get(id), requestId = `${id}-${Date.now()}`;
@@ -31,7 +37,7 @@ async function haituoTestAccountWindows() {
         const shellDeadline = Date.now() + 60000;
         while (!await Z.webContents.executeJavaScript(`!!document.querySelector('.CaishengPlatformShell__add')`) && Date.now()<shellDeadline) await delay(200);
 
-        for (let account=0;account<3;account++) {
+        for (let account=0;account<40;account++) {
             const beforeIds = new Set(Yg.keys());
             await Z.webContents.executeJavaScript(`document.querySelector('.CaishengPlatformShell__add').click()`);
             await delay(500);
@@ -44,12 +50,13 @@ async function haituoTestAccountWindows() {
             ids.push(id);
             while (!Xg.has(id) && Date.now() < deadline) await delay(200);
             check(Xg.has(id), `Account did not become ready: ${id}`);
-            await delay(1500);
+            await delay(500);
             const before = await state(id); states.push({ stage: `ui-account-added`, ...before });
             check(before.visible, `Added account did not become visible: ${id}`);
         }
 
-        for (const id of [ids[0], ids[1], ids[2], ids[0]]) {
+        states.push({stage:`forty-account-resources`,...resources()});
+        for (const id of [ids[0], ids[9], ids[19], ids[29], ids[39], ids[0]]) {
             await Z.webContents.executeJavaScript(`document.querySelector('button[data-caisheng-tab-workspace="${id}"]').click()`);
             await delay(1500);
             const current = await Promise.all(ids.map(state));

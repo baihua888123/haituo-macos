@@ -7,7 +7,7 @@ with tempfile.TemporaryDirectory(prefix='haituo-window-test-') as profile:
     with (out/'account-windows.log').open('w') as log:
         proc=subprocess.Popen([str(app),'--user-data-dir='+profile],env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
         try:
-            code=proc.wait(timeout=240)
+            code=proc.wait(timeout=900)
             data=json.loads(result.read_text()) if result.exists() else {'ok':False,'error':'No window test report'}
             print(json.dumps(data,ensure_ascii=False,indent=2))
             print('Window test exit code:',code)

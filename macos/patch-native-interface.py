@@ -95,6 +95,28 @@ edit('    if (e.type === `haituo-test-window-state`', '''    if (e.type === `hai
     }
     if (e.type === `haituo-test-window-state`''')
 s+='\n'+Path('macos/native-interface-main.js').read_text()
+# Delete the retired wallpaper loader and webview injection, rather than covering them.
+a=s.index('let haituoPortalBackgroundDataUrl;');b=s.index('Q_ =',a);s=s[:a]+s[b:]
+a=s.index('        const applyHaituoLoginBackground = () => {');b=s.index('        const workspaceId =',a);s=s[:a]+s[b:]
+s=s.replace('waterInkBackgroundUrl: config?.waterInkTheme ? haituoGetInkBackgroundDataUrl() : ``','')
+s=s.replace(', waterInkBackgroundUrl: $p().waterInkTheme ? haituoGetInkBackgroundDataUrl() : ``','')
+s=s.replace('typeof e.waterInkTheme == `boolean` || (e.waterInkTheme = !0, changed = !0), ','')
+s=s.replace('e.waterInkTheme = false;', 'delete e.waterInkTheme; delete e.waterInkBackgroundUrl;')
+s=s.replace('        waterInkTheme: false,\n','').replace('waterInkTheme: !1, ','')
+s=s.replace('        waterInkTheme: !!accountWindowConfig.waterInkTheme,\n','')
+s=s.replace('''        const latestTheme = !!$p().waterInkTheme;
+        if (Qg && Qg.waterInkTheme !== latestTheme) Qg.waterInkTheme = latestTheme, caishengChildDarkApplied = null, n_();
+''','')
+a=s.index('let aHc, caishengTextCssKey');b=s.index('\n',a)
+s=s[:a]+'let haituoNativeAppearanceSignature;'+s[b:]
+s=s.replace('caishengWaterInkAppearance','haituoNativeAppearanceSignature')
+s=s.replace('data.waterInkTheme=false;','')
+s=s.replace("row.style.border='1px solid #76551d'", "row.style.border='1px solid #777777'")
+paint=r'(?:background(?:-[a-z-]+)?|color|(?:-webkit-)?text-fill-color|text-shadow|box-shadow|filter|backdrop-filter|border(?:-(?:color|top|bottom|left|right))?|accent-color|color-scheme|opacity)'
+def remove_paint(css):
+    return re.sub(r'(?<=[{;])\s*'+paint+r'\s*:[^;{}]*[;]?', '', css, flags=re.I)
+# Standalone settings and rename dialogs keep their layout and receive native colors.
+s=re.sub(r'<style>([^<]*)</style>',lambda match:'<style>'+remove_paint(match[1])+'</style>',s)
 p.write_text(s)
 
 p=root/'bundles/preload/main.js';s=p.read_text()
@@ -132,6 +154,10 @@ edit('''                            chatTextColor: `#111827`,
                             outgoingBubbleColor: `#2c6bed`,''', '''                            chatTextColor: ``,
                             outgoingBubbleColor: ``,''')
 s=s.replace('当前版本 1.1.7', '当前版本 1.1.11')
+s=s.replace('${m.waterInkTheme ? ` is-haituo-ink` : ``}', '')
+s=s.replace('e.waterInkTheme = false;', 'delete e.waterInkTheme; delete e.waterInkBackgroundUrl;')
+s=s.replace('            waterInkTheme: e.waterInkTheme,\n','').replace('            waterInkTheme: !1,\n','')
+s=s.replace(', waterInkTheme: false','').replace('waterInkTheme: !1, ','')
 s+='\n'+Path('macos/native-interface-renderer.js').read_text()
 p.write_text(s)
 
@@ -176,13 +202,24 @@ function_replace('applyChatColor', '''function applyChatColor() {
     style.textContent=css;
 }''')
 function_replace('applyTranslatorTheme',Path('macos/native-interface-webview.js').read_text())
+s=s.replace('    waterInkTheme: !1,\n','').replace('    waterInkBackgroundUrl: "",\n','')
 p.write_text(s)
 
 # Keep the proven layout declarations; discard all old decorative theme paints.
 p=root/'stylesheets/haituo-blackgold.css'
 css=p.read_text()
-paint=r'(?:background(?:-[a-z-]+)?|color|(?:-webkit-)?text-fill-color|text-shadow|box-shadow|filter|backdrop-filter|border(?:-(?:color|top|bottom|left|right))?|accent-color|color-scheme|opacity)'
-css=re.sub(r'(?<=[{;])\s*'+paint+r'\s*:[^;{}]*[;]?', '', css, flags=re.I)
+css=remove_paint(css)
+css=re.sub(r'[^{}]*\.is-haituo-ink[^{}]*\{[^{}]*\}', '', css)
+css=re.sub(r'[^{}]*(?:module-InstallScreenQrCodeNotScannedStep|InstallScreenSignalLogo)[^{}]*\{[^{}]*\}', '', css)
+css=re.sub(r'/\*.*?\*/','',css,flags=re.S)
 css+='\n'+Path('macos/native-interface.css').read_text()
-p.write_text(css)
+(p.parent/'haituo-layout.css').write_text(css)
+p.unlink()
+p=root/'background.html';p.write_text(p.read_text().replace('stylesheets/haituo-blackgold.css','stylesheets/haituo-layout.css'))
+for name in ['haituo-shuimo-chat-v1.jpg','haituo-portal-bg.jpg','haituo-portal-bg-v29.jpg','haituo-blackgold-bg.svg']:
+    (root/'images'/name).unlink(missing_ok=True)
+# Packaging must fail if a retired theme can still be loaded.
+for name in ['bundles/main.js','bundles/preload/main.js','js/caisheng-webview-preload.js','background.html','stylesheets/haituo-layout.css']:
+    text=(root/name).read_text()
+    assert not re.search(r'haituoGet(?:Ink|Portal)BackgroundDataUrl|haituo-(?:shuimo|portal-bg|blackgold)|is-haituo-ink',text),name
 print('Applied native dark/light appearance and Mac account refresh lifecycle')
