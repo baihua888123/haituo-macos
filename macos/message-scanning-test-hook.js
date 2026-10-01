@@ -21,6 +21,8 @@ async function haituoTestMessageScanning() {
         <div class="message-in" id="retry"><span class="selectable-text">Retry without page changes</span></div>
         <div class="message-in" id="url"><span class="selectable-text">https://example.com</span></div>
         </div></body></html>`;
+        win.webContents.session.setUserAgent('Mozilla/5.0 HaiTuo-Test');
+        win.webContents.setUserAgent('Mozilla/5.0 HaiTuo-Test');
         await win.webContents.session.protocol.handle('https',request => new Response(html,{headers:{'content-type':'text/html; charset=utf-8'}}));
         await win.loadURL('https://web.whatsapp.com/haituo-message-fixture');
         await win.webContents.executeJavaScript(`window.fixtureNoise=setInterval(()=>document.getElementById('noise').textContent=String(Date.now()),100);setTimeout(()=>{const row=document.createElement('div');row.className='message-in';row.id='late';row.innerHTML='<span class="selectable-text">New message during continuous updates</span>';document.getElementById('main').append(row)},2500)`);
