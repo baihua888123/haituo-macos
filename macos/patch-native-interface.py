@@ -188,7 +188,7 @@ def function_replace(name, body):
     # The following top-level force call is retained through the replacement body.
     s=s[:a]+body+'\n'+s[b:]
 function_replace('forceWhatsAppDarkTheme', '''function forceWhatsAppDarkTheme() {
-    if (!isWhatsApp()) return;
+    if (!isWhatsApp() || !document.documentElement) return;
     const mode = settings.nativeTheme === "light" ? "light" : "dark";
     document.documentElement.classList.toggle("dark",mode === "dark");
     document.documentElement.classList.toggle("light",mode === "light");
