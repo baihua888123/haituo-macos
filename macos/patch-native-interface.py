@@ -203,6 +203,9 @@ function_replace('applyChatColor', '''function applyChatColor() {
 }''')
 function_replace('applyTranslatorTheme',Path('macos/native-interface-webview.js').read_text())
 s=s.replace('    waterInkTheme: !1,\n','').replace('    waterInkBackgroundUrl: "",\n','')
+s=s.replace('"linear-gradient(145deg,#17140e,#080706)"','(settings.nativeTheme === "light" ? "#ffffff" : "#202020")')
+s=s.replace('"#fff0c8"','(settings.nativeTheme === "light" ? "#202020" : "#eeeeee")')
+s=s.replace('#74501a','#777777').replace('#ffd66a','#306de1').replace('linear-gradient(#fff0a0,#c98c18)','#306de1').replace('#d7a92f','#306de1').replace('#281b02','#ffffff')
 p.write_text(s)
 
 # Keep the proven layout declarations; discard all old decorative theme paints.

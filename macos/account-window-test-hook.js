@@ -56,8 +56,12 @@ async function haituoTestAccountWindows() {
         }
 
         states.push({stage:`forty-account-resources`,...resources()});
+        const bar=await Z.webContents.executeJavaScript(`(()=>{const bar=document.querySelector('.CaishengPlatformShell__tabs');return {height:bar.getBoundingClientRect().height,width:bar.clientWidth,scrollWidth:bar.scrollWidth}})()`);
+        check(bar.height<=44,`Forty tabs displaced the chat area`);
+        check(bar.scrollWidth>bar.width,`Account tabs did not scroll`);
+        states.push({stage:`account-tab-layout`,...bar});
         for (const id of [ids[0], ids[9], ids[19], ids[29], ids[39], ids[0]]) {
-            await Z.webContents.executeJavaScript(`document.querySelector('button[data-caisheng-tab-workspace="${id}"]').click()`);
+            await Z.webContents.executeJavaScript(`(()=>{const tab=document.querySelector('button[data-caisheng-tab-workspace="${id}"]');tab.scrollIntoView({block:'nearest',inline:'nearest'});tab.click()})()`);
             await delay(1500);
             const current = await Promise.all(ids.map(state));
             states.push({ stage: `selected`, selectedId: id, accounts: current });
